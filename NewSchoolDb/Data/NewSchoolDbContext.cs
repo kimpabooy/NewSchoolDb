@@ -20,6 +20,10 @@ public partial class NewSchoolDbContext : DbContext
 
     public virtual DbSet<Course> Courses { get; set; }
 
+    public virtual DbSet<CourseName> CourseNames { get; set; }
+
+    public virtual DbSet<Department> Departments { get; set; }
+
     public virtual DbSet<Grade> Grades { get; set; }
 
     public virtual DbSet<Role> Roles { get; set; }
@@ -60,14 +64,42 @@ public partial class NewSchoolDbContext : DbContext
             entity.ToTable("Course");
 
             entity.Property(e => e.CourseId).HasColumnName("CourseID");
-            entity.Property(e => e.CourseName)
-                .HasMaxLength(55)
-                .IsUnicode(false);
+            entity.Property(e => e.CourseNameId).HasColumnName("CourseName_ID");
             entity.Property(e => e.SubjectId).HasColumnName("Subject_ID");
+
+            entity.HasOne(d => d.CourseName).WithMany(p => p.Courses)
+                .HasForeignKey(d => d.CourseNameId)
+                .HasConstraintName("FK_Course_CourseName");
 
             entity.HasOne(d => d.Subject).WithMany(p => p.Courses)
                 .HasForeignKey(d => d.SubjectId)
                 .HasConstraintName("FK__Course__Subject___3B75D760");
+        });
+
+        modelBuilder.Entity<CourseName>(entity =>
+        {
+            entity.HasKey(e => e.CourseNameId).HasName("PK__CourseNa__37FE4860DD0B0C54");
+
+            entity.ToTable("CourseName");
+
+            entity.Property(e => e.CourseNameId).HasColumnName("CourseNameID");
+            entity.Property(e => e.CourseName1)
+                .HasMaxLength(55)
+                .IsUnicode(false)
+                .HasColumnName("CourseName");
+        });
+
+        modelBuilder.Entity<Department>(entity =>
+        {
+            entity.HasKey(e => e.DepartmentId).HasName("PK__Departme__B2079BCD2711E2C5");
+
+            entity.ToTable("Department");
+
+            entity.Property(e => e.DepartmentId).HasColumnName("DepartmentID");
+            entity.Property(e => e.DepartmentName)
+                .HasMaxLength(55)
+                .IsUnicode(false);
+            entity.Property(e => e.Salary).HasColumnType("decimal(18, 2)");
         });
 
         modelBuilder.Entity<Grade>(entity =>
@@ -115,6 +147,7 @@ public partial class NewSchoolDbContext : DbContext
             entity.HasKey(e => e.StaffId).HasName("PK__Staff__96D4AAF7F0FF573C");
 
             entity.Property(e => e.StaffId).HasColumnName("StaffID");
+            entity.Property(e => e.DepartmentId).HasColumnName("Department_ID");
             entity.Property(e => e.FirstName)
                 .HasMaxLength(55)
                 .IsUnicode(false);
@@ -122,6 +155,10 @@ public partial class NewSchoolDbContext : DbContext
                 .HasMaxLength(55)
                 .IsUnicode(false);
             entity.Property(e => e.RoleId).HasColumnName("Role_ID");
+
+            entity.HasOne(d => d.Department).WithMany(p => p.Staff)
+                .HasForeignKey(d => d.DepartmentId)
+                .HasConstraintName("FK__Staff__Departmen__5DCAEF64");
 
             entity.HasOne(d => d.Role).WithMany(p => p.Staff)
                 .HasForeignKey(d => d.RoleId)
