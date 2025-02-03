@@ -9,7 +9,7 @@ I detta projekt ska du bygga klart en helt fungerande applikation för den fikti
 Här följer de funktioner du ska bygga i ditt program.
 
 
-- [ ] ➡️ Det måste finnas en meny där man kan välja att visa olika data som efterfrågas av skolan. (Console)
+- [X] ➡️ Det måste finnas en meny där man kan välja att visa olika data som efterfrågas av skolan. (Console)
 
 - [ ] ➡️ Hur många lärare jobbar på de olika avdelningarna? (EF)
 
