@@ -40,7 +40,6 @@ namespace NewSchoolDb
                 var students = context.Students
                     .Include(s => s.Class)
                     .Include(s => s.Grades)
-                    //.Where(s => new[] { "7A", "7B", "7C", "8A", "8B", "8C", "9A", "9B", "9C", "9D" }.Contains(s.Class.ClassName))
                     .OrderBy(s => s.Class.ClassName)
                     .ToList();
 
@@ -62,6 +61,61 @@ namespace NewSchoolDb
             }
         }
 
-        
+        public void GetActiveCourse()
+        {
+            using(NewSchoolDbContext context = new NewSchoolDbContext())
+            {
+
+                var courses = context.Courses
+                    .Include(c => c.CourseNameId)
+                    .Include(c => c.SubjectId)
+                    //.Where(c => c.EndDate = g.EndDate < today)
+                    
+                    .Select(g => new
+                    {
+                        //EndDate = g.EndDate < DateTime.Now()
+                        
+
+
+                    })
+                    .ToList();
+
+                foreach (var item in courses)
+                {
+                    Console.WriteLine($"#{item}");
+                }
+            }
+        }
+
+
+        public void Test()
+        {
+
+            var today = DateOnly.FromDateTime(DateTime.Now);
+
+            using (var context = new NewSchoolDbContext())
+            {
+                var courses = context.Courses
+                    .Where(c => c.EndDate < today) // Get active courses if EndDate is after todays date.
+                    .Include(c => c.CourseName)
+                    .Include(c => c.Subject)
+                    .ToList();
+               
+                var count = 1;
+                foreach (var course in courses)
+                {
+                    Console.WriteLine($"#{count} Kurs: {course.CourseName.CourseName1}{course.CourseId}, Ämne: {course.Subject.SubjectName}, Slutdatum: {course.EndDate}");
+                    count++;
+                }
+            }
+            Console.ReadKey();
+        }
+
+
     }
+
+
+    // .Where(c => c.EndDate > DateTime.Now())
+    // StartDate <= DateTime.Now && c.EndDate > DateTime.Now
 }
+

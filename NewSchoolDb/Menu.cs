@@ -21,7 +21,7 @@ namespace NewSchoolDb
                 Console.WriteLine("Välj altternativ nedan.\n");
                 Console.WriteLine("[1] Hämta antalet anställda per avdelning .");
                 Console.WriteLine("[2] Hämta relevant information om Studenterna");
-                Console.WriteLine("[3] ");
+                Console.WriteLine("[3] Hämta Aktiva kurser");
                 Console.WriteLine("[4] Avsluta program");
                 Console.WriteLine();
 
@@ -39,6 +39,7 @@ namespace NewSchoolDb
                         break;
                     case "3":
                         Console.Clear();
+                        dbM.GetActiveCourse();
                         break;
                     case "4":
                         activeMenu = false;
