@@ -17,11 +17,11 @@ namespace NewSchoolDb
             {
                 Console.Clear();
 
-                Console.WriteLine("Välkommen till Administrationsverktyget för SchoolDb!\n");
+                Console.WriteLine("Välkommen till Administrationsverktyget för NewSchoolDb!\n");
                 Console.WriteLine("Välj altternativ nedan.\n");
-                Console.WriteLine("[1] Hämta alla elever.");
-                Console.WriteLine("[2] Hämta alla elever i en viss klass.");
-                Console.WriteLine("[3] Lägga till ny personal");
+                Console.WriteLine("[1] Hämta antalet anställda per avdelning .");
+                Console.WriteLine("[2] Hämta relevant information om Studenterna");
+                Console.WriteLine("[3] ");
                 Console.WriteLine("[4] Avsluta program");
                 Console.WriteLine();
 
@@ -31,9 +31,11 @@ namespace NewSchoolDb
                 {
                     case "1":
                         Console.Clear();
+                        dbM.GetTeacherAmount();
                         break;
                     case "2":
                         Console.Clear();
+                        dbM.GetStudentInfo();
                         break;
                     case "3":
                         Console.Clear();
@@ -47,7 +49,5 @@ namespace NewSchoolDb
                 }
             }
         }
-
-
     }
 }

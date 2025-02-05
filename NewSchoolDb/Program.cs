@@ -4,10 +4,8 @@
     {
         static void Main(string[] args)
         {
-
-
-
-            Console.ReadKey();
+            Menu m = new Menu();
+            m.UserMenu();
         }
     }
 }
