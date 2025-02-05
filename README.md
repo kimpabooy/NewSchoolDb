@@ -11,7 +11,7 @@ Här följer de funktioner du ska bygga i ditt program.
 
 - [X] ➡️ Det måste finnas en meny där man kan välja att visa olika data som efterfrågas av skolan. (Console)
 
-- [ ] ➡️ Hur många lärare jobbar på de olika avdelningarna? (EF)
+- [X] ➡️ Hur många lärare jobbar på de olika avdelningarna? (EF)
 
 - [ ] ➡️ Visa information om alla elever (EF)
 
