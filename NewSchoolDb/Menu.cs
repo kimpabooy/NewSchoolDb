@@ -1,4 +1,6 @@
-﻿using System;
+﻿//using NewSchoolDb.EFService;
+using NewSchoolDb.Servicees;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,7 +12,9 @@ namespace NewSchoolDb
     {
         public void UserMenu()
         {
-            DatabaseManager dbM = new DatabaseManager();
+            EFService efS = new EFService();
+            ADOService adoS = new ADOService();
+
             var activeMenu = true;
 
             while (activeMenu)
@@ -22,11 +26,11 @@ namespace NewSchoolDb
                 Console.WriteLine("[1] Hämta antalet anställda per avdelning .");
                 Console.WriteLine("[2] Hämta relevant information om Studenterna");
                 Console.WriteLine("[3] Hämta Aktiva kurser");
-                Console.WriteLine("[5] Hämta Personalöversikt");
-                Console.WriteLine("[6] ");
-                Console.WriteLine("[7] Avsluta");
+                Console.WriteLine("[4] Hämta Personalöversikt");
+                Console.WriteLine("[5] ");
+                Console.WriteLine("[6] Avsluta");
+                Console.WriteLine("[7] ");
                 Console.WriteLine("[8] ");
-                Console.WriteLine("[9] ");
                 Console.WriteLine();
                 // GetStaff()
                 string userInput = Console.ReadLine();
@@ -35,28 +39,24 @@ namespace NewSchoolDb
                 {
                     case "1":
                         Console.Clear();
-                        dbM.GetTeacherAmount();
+                        efS.GetTeacherAmount();
                         break;
                     case "2":
                         Console.Clear();
-                        dbM.GetStudentInfo();
+                        efS.GetStudentInfo();
                         break;
                     case "3":
                         Console.Clear();
-                        dbM.GetActiveCourse();
+                        efS.GetActiveCourse();
                         break;
                     case "4":
                         Console.Clear();
-                        dbM.GetTeacherAmount();
+                        adoS.GetStaff();
                         break;
                     case "5":
                         Console.Clear();
-                        dbM.GetStaff();
                         break;
                     case "6":
-                        Console.Clear();
-                        break;
-                    case "7":
                         activeMenu = false;
                         break;
                     default:
