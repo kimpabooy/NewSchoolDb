@@ -19,9 +19,9 @@ Här följer de funktioner du ska bygga i ditt program.
 
 - [X] ➡️ Skolan vill kunna ta fram en översikt över all personal där det framgår namn och vilka befattningar de har samt hur många år de har arbetat på skolan. Administratören vill också ha möjlighet att spara ner ny personal. (SQL via ADO.Net)
 
-- [ ] ➡️ Vi vill spara ner elever och se vilken klass de går i. Vi vill kunna spara ner betyg för en elev i varje kurs de läst och vi vill kunna se vilken lärare som satt betyget. Betyg ska också ha ett datum då de satts. (SQL via ADO.Net)
+- [X] ➡️ Vi vill spara ner elever och se vilken klass de går i. Vi vill kunna spara ner betyg för en elev i varje kurs de läst och vi vill kunna se vilken lärare som satt betyget. Betyg ska också ha ett datum då de satts. (SQL via ADO.Net)
 
-- [ ] ➡️ Hur mycket betalar respektive avdelning ut i lön varje månad? (SQL via ADO.Net)
+- [X] ➡️ Hur mycket betalar respektive avdelning ut i lön varje månad? (SQL via ADO.Net)
 
 - [ ] ➡️ Hur mycket är medellönen för de olika avdelningarna? (SQL via ADO.Net)
 
