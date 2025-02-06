@@ -23,7 +23,7 @@ Här följer de funktioner du ska bygga i ditt program.
 
 - [X] ➡️ Hur mycket betalar respektive avdelning ut i lön varje månad? (SQL via ADO.Net)
 
-- [ ] ➡️ Hur mycket är medellönen för de olika avdelningarna? (SQL via ADO.Net)
+- [X] ➡️ Hur mycket är medellönen för de olika avdelningarna? (SQL via ADO.Net)
 
 - [ ] ➡️ Skapa en Stored Procedure som tar emot ett Id och returnerar viktig information om den elev som är registrerad med aktuellt Id. (SQL via ADO.Net)
 
