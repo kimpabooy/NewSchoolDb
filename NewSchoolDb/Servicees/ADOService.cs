@@ -229,7 +229,7 @@ namespace NewSchoolDb.Servicees
 
                 while (reader.Read())
                 {
-                    Console.WriteLine($"Ämne: {reader[""]}, Betyg: {reader["Grade"]}, Lärare: {reader["TeacherName"]}, Datum: {reader["Date"]}");
+                    Console.WriteLine($"Ämne: {reader["Student"]}, Betyg: {reader["Betyg"]}, Lärare: {reader["Lärare"]}, Datum: {reader["Betygsdatum"]}");
                 }
             }
             Console.ReadKey();
