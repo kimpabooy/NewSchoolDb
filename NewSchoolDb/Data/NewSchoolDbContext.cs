@@ -86,8 +86,6 @@ public partial class NewSchoolDbContext : DbContext
         {
             entity.HasKey(e => e.CourseNameId).HasName("PK__CourseNa__37FE4860DD0B0C54");
 
-            entity.ToTable("CourseName");
-
             entity.Property(e => e.CourseNameId).HasColumnName("CourseNameID");
             entity.Property(e => e.CourseName1)
                 .HasMaxLength(55)
