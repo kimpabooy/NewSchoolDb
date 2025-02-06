@@ -1,6 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using NewSchoolDb.Data;
-using NewSchoolDb.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +11,7 @@ namespace NewSchoolDb
 {
     public class DatabaseManager
     {
+        private readonly string _connectionstring = "Data Source = localhost;Database = NewSchoolDb;Trusted_Connection=True;Trust server certificate = true;";
         public void GetTeacherAmount()
         {
             using (var context = new NewSchoolDbContext())
@@ -63,35 +64,7 @@ namespace NewSchoolDb
 
         public void GetActiveCourse()
         {
-            using(NewSchoolDbContext context = new NewSchoolDbContext())
-            {
-
-                var courses = context.Courses
-                    .Include(c => c.CourseNameId)
-                    .Include(c => c.SubjectId)
-                    //.Where(c => c.EndDate = g.EndDate < today)
-                    
-                    .Select(g => new
-                    {
-                        //EndDate = g.EndDate < DateTime.Now()
-                        
-
-
-                    })
-                    .ToList();
-
-                foreach (var item in courses)
-                {
-                    Console.WriteLine($"#{item}");
-                }
-            }
-        }
-
-
-        public void Test()
-        {
-
-            var today = DateOnly.FromDateTime(DateTime.Now);
+            var today = DateTime.Now;
 
             using (var context = new NewSchoolDbContext())
             {
@@ -100,7 +73,7 @@ namespace NewSchoolDb
                     .Include(c => c.CourseName)
                     .Include(c => c.Subject)
                     .ToList();
-               
+
                 var count = 1;
                 foreach (var course in courses)
                 {
@@ -109,6 +82,56 @@ namespace NewSchoolDb
                 }
             }
             Console.ReadKey();
+        }
+
+        public void GetStaff()
+        {
+            using (SqlConnection connection = new SqlConnection(_connectionstring))
+            {
+                connection.Open();
+
+                string query = @"SELECT 
+                                CONCAT(FirstName, ' ', LastName) AS [Name],
+                                r.RoleName, 
+                                DATEDIFF(YEAR, s.YearsWorked, GETDATE()) AS YearsWorked
+                                FROM Staff s
+                                JOIN Role r ON s.Role_ID = r.RoleID";
+
+                SqlCommand command = new SqlCommand(query, connection);
+
+                SqlDataReader reader = command.ExecuteReader();
+
+
+                Console.WriteLine("Namn\tRoll\tÅr på skolan");
+                Console.WriteLine("--------------------------------");
+
+                while (reader.Read())
+                {
+                    Console.WriteLine($"{reader["FirstName"]} {reader["LastName"]}\t{reader["RoleName"]}\t{reader["YearsWorked"]}");
+                }
+                reader.Close();
+            }
+        }
+        
+        public void GetStudentGrade()
+        {
+
+        }
+
+        public void GetSalary()
+        {
+            //baka in vad meddellönen är för de olika avdelningarna
+        }
+
+        public void GetStudentById()
+        {
+
+        }
+
+        public void Test()
+        {
+
+           
         }
 
 

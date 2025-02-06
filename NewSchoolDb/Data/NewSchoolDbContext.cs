@@ -65,6 +65,12 @@ public partial class NewSchoolDbContext : DbContext
 
             entity.Property(e => e.CourseId).HasColumnName("CourseID");
             entity.Property(e => e.CourseNameId).HasColumnName("CourseName_ID");
+            entity.Property(e => e.EndDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.StartDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
             entity.Property(e => e.SubjectId).HasColumnName("Subject_ID");
 
             entity.HasOne(d => d.CourseName).WithMany(p => p.Courses)
