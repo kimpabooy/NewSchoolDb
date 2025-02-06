@@ -323,10 +323,81 @@ namespace NewSchoolDb.Servicees
             Console.ReadKey();
         }
 
-        public void Test()
+        public void GustavsMetod()
         {
 
+            // Only run once 🙂 
+            // Creates "StudentGrade" objects/rows to use in database
+            // Uses DB Tables: 
+            // "Students" (A Student)
+            // "Course" t.ex. (A specific course with connection to class and subject - for example "7A ENGLISH".
 
+            // Gets all courses, then (via connection to Class table) students, and creates a random grade (between 1 and 4) for each course, for each student, then saves it.
+            // There are FK connections between teacher/course, studentgrade/gradescale, studentgrade/student etc. etc. - these need to be in place first. 
+
+
+            //    var r = new Random();
+            //    using (var context = new Labb2Context())
+            //    {
+            //        var coursesToGrade = context.Courses
+            //            .Include(cl => cl.CurrentClass)
+            //            .ThenInclude(st => st.Students)
+            //            .ToList();
+
+
+            //        foreach (Course c in coursesToGrade)
+            //        {
+            //            var grades = new List<StudentGrade>();
+            //            foreach (Student s in c.CurrentClass.Students)
+            //            {
+            //                var newGrade = new StudentGrade()
+            //                {
+            //                    SetDate = DateOnly.FromDateTime(DateTime.Now),
+            //                    StaffId = c.TeacherId,
+            //                    StudentId = s.Id,
+            //                    GradeScaleId = r.Next(1, 5), // change min/max number to your "grade id:s"
+            //                    CourseId = c.Id
+            //                };
+            //                grades.Add(newGrade);
+            //            }
+            //            context.AddRange(grades);
+            //        }
+
+            //        context.SaveChanges();
+
+            //    }
         }
+
+
+        public void AddGradeToStudent()
+        {
+            Random random = new Random();
+            using (var connection = new SqlConnection(_connectionstring))
+            {
+                connection.Open();
+
+                
+                string query = @"INSERT INTO Grade (GradeID, Grade, GradeDate, Student_ID, Subject_ID, Staff_ID) VALUES
+                (@GradeID, @Grade, @GradeDate, @Student_ID, @Subject_ID, @Staff_ID)";
+
+                var command = new SqlCommand(query, connection);
+
+                command.Parameters.AddWithValue("@GradeID", );
+                command.Parameters.AddWithValue("@Grade", random.Next(1, 5)); // A-F???
+                command.Parameters.AddWithValue("@GradeDate", DateTime.Now.Date);
+                command.Parameters.AddWithValue("@Student_ID", ); 
+                command.Parameters.AddWithValue("@Subject_ID", ); 
+                command.Parameters.AddWithValue("@Staff_ID", );
+
+                //command.ExecuteNonQuery();
+                
+                
+            }
+        }
+
+
+
+
     }
 }
+
