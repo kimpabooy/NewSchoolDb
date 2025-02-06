@@ -29,8 +29,8 @@ namespace NewSchoolDb
                 Console.WriteLine("[3] Hämta Aktiva kurser.");
                 Console.WriteLine("[4] Hämta Personalöversikt.");
                 Console.WriteLine("[5] Hämta Elever och betyg");
-                Console.WriteLine("[6] ");
-                Console.WriteLine("[7] ");
+                Console.WriteLine("[6] Hämta kostnad/mån per avdelning");
+                Console.WriteLine("[7] Hämta Student genom ID");
                 Console.WriteLine("[8] ");
                 Console.WriteLine("[9] ");
                 Console.WriteLine("[0] Avsluta");
@@ -62,9 +62,11 @@ namespace NewSchoolDb
                         break;
                     case "6":
                         Console.Clear();
+                        adoS.GetSalary();
                         break;
                     case "7":
                         Console.Clear();
+                        adoS.GetStudentById();
                         break;
                     case "8":
                         Console.Clear();

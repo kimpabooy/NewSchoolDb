@@ -4,6 +4,7 @@ using NewSchoolDb.Data;
 using NewSchoolDb.Models;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -235,12 +236,91 @@ namespace NewSchoolDb.Servicees
 
         public void GetSalary()
         {
-            //baka in vad meddellönen är för de olika avdelningarna
+            string query = @"
+                   SELECT 
+                       d.DepartmentName AS Avdelning, 
+                       SUM(d.Salary) AS Månadskostnad,
+                       AVG(d.Salary) AS Medellön
+                   FROM Department d
+                   JOIN Staff s ON d.DepartmentID = s.Department_ID
+                   GROUP BY d.DepartmentID, d.DepartmentName;";
+
+            // Combined Sum and Average Salary
+            using (SqlConnection connection = new SqlConnection(_connectionstring))
+            {
+                SqlCommand command = new SqlCommand(query, connection);
+                connection.Open();
+
+                SqlDataReader reader = command.ExecuteReader();
+
+                //Console.WriteLine("Avdelning | Månadskostnad | Medellön");
+                Console.WriteLine("-----Avdelningskostnader-----");
+                Console.WriteLine("---------------------------------------");
+
+                while (reader.Read())
+                {
+                    Console.WriteLine($"Avdelning: {reader["Avdelning"]}\nMånadskostnad: {reader["Månadskostnad"]} SEK\nMedellönen: {Math.Round((decimal)reader["Medellön"], 2)} SEK"); // Limits the decimals to 2
+                    Console.WriteLine("---------------------------------------");
+                }
+            }
+            Console.WriteLine("Tryck på valfri tangent för att fortsätta...");
+            Console.ReadKey();
         }
 
         public void GetStudentById()
         {
+            /*
+             string query = @"CREATE PROCEDURE GetStudentInfo
+                              @StudentID INT
+                          AS
+                          BEGIN
+                              SELECT 
+                                  s.StudentID,
+                                  CONCAT(s.FirstName, ' ', s.LastName) AS Student,
+                                  CONCAT(st.FirstName, ' ', st.LastName) AS Lärare,
+                                  c.ClassName AS Klass,
+                                  gr.Grade AS Betyg,
+                                  sub.SubjectName AS Ämne
+                              FROM 
+                              Student s
+                              LEFT JOIN Class c ON s.Class_ID = c.ClassID -- Klassnamn för student
+                              LEFT JOIN Grade gr ON s.StudentID = gr.Student_ID -- Betyg för studenten
+                              LEFT JOIN Subject sub ON gr.Subject_ID = sub.SubjectID -- Namn på ämnet för varje betyg.
+                              LEFT JOIN Staff st ON gr.Staff_ID = st.StaffID -- Läraren som gav betyget
+                              WHERE s.StudentID = @StudentID;
+                          END;";
+             */
 
+            using (SqlConnection connection = new SqlConnection(_connectionstring))
+            {
+                connection.Open();
+
+                using (SqlCommand command = new SqlCommand("GetStudentInfo", connection))
+                {
+                    Console.WriteLine("----Studentinformation----\n");
+                    Console.WriteLine("Välj önskat Student ID: (Förslagsvis 13, 30 eller 39\"");
+                    Console.Write("Val: ");
+                    int studentId = Convert.ToInt32(Console.ReadLine());
+
+
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@StudentID", studentId);
+
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            Console.WriteLine($"Student: {reader["Student"]}");
+                            Console.WriteLine($"Klass: {reader["Klass"]}");
+                            Console.WriteLine($"Lärare: {reader["Lärare"]}");
+                            Console.WriteLine($"Ämne: {reader["Ämne"]}");
+                            Console.WriteLine($"Betyg: {reader["Betyg"]}");
+                            Console.WriteLine();
+                        }
+                    }
+                }
+            }
+            Console.ReadKey();
         }
 
         public void Test()
