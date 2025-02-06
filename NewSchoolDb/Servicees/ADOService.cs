@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using NewSchoolDb.Data;
 using NewSchoolDb.Models;
 using System;
@@ -73,101 +74,73 @@ namespace NewSchoolDb.Servicees
 
         public void AddStaff()
         {
-            using (var context = new NewSchoolDbContext())
+            using (SqlConnection connection = new SqlConnection(_connectionstring))
             {
-                string firstName;
-                string lastName;
-
-                while (true)
+                Console.WriteLine("Vänligen ange information nedan\n");
+                
+                Console.Write("Förnamn: ");
+                string firstName = Console.ReadLine();
+                
+                Console.Write("Efternamn: ");
+                string lastName = Console.ReadLine();
+                
+                Console.Write("Startdatum (YYYY-MM-DD): ");
+                DateTime yearsWorked = DateTime.Parse(Console.ReadLine());
+                
+                using (NewSchoolDbContext context = new NewSchoolDbContext())
                 {
-                    Console.WriteLine("Vänligen ange informationen nedan\n");
-                    Console.Write("Förnamn: ");
-                    firstName = Console.ReadLine()?.Trim();
-                    if (firstName.Length > 2 && firstName.Length < 56)
+                    // Hämtar alla roller
+                    var roles = context.Roles.ToList();
+
+                    // Checks if there is any roles
+                    if (!roles.Any())
                     {
-                        break;
-                    }
-                    else if (firstName.Length <= 2)
-                    {
-                        Console.WriteLine("Ditt namn måste ha minst 3 bokstäver");
-                    }
-                    else if (firstName.Length >= 55)
-                    {
-                        Console.WriteLine("Ditt namn är för långt, kan inte vara längre än 55 bokstäver");
+                        Console.WriteLine("Det finns inga roller tillgängliga. Lägg till en roll först.");
+                        return;
                     }
 
+                    // List the available roles
+                    Console.WriteLine("\nTillgängliga roller:");
+                    foreach (var role in roles)
+                    {
+                        Console.WriteLine($"{role.RoleId} - {role.RoleName}");
+                    }
                 }
 
-                while (true)
-                {
-                    Console.Write("Efternamn: ");
-                    lastName = Console.ReadLine()?.Trim();
-                    if (lastName.Length > 2 && lastName.Length < 56)
-                    {
-                        break;
-                    }
-                    else if (lastName.Length <= 2)
-                    {
-                        Console.WriteLine("Ditt efternamn måste ha minst 3 bokstäver");
-                    }
-                    else if (lastName.Length >= 55)
-                    {
-                        Console.WriteLine("Ditt efternamn är för långt, kan inte vara längre än 55 bokstäver");
-                    }
+                Console.Write("Välj Roll genom ID: ");
+                int roleId = int.Parse(Console.ReadLine());
 
-                }
-
-                var roles = context.Roles.ToList();
-
-                // Checks if there is any roles
-                if (!roles.Any())
-                {
-                    Console.WriteLine("Det finns inga roller tillgängliga. Lägg till en roll först.");
-                    return;
-                }
-
-                // List the available roles
-                Console.WriteLine("\nTillgängliga roller:");
-                foreach (var role in roles)
-                {
-                    Console.WriteLine($"{role.RoleId} - {role.RoleName}");
-                }
-
-                int staffRole;
-                while (true)
-                {
-                    Console.Write("\nVälj det ID du vill lägga till: ");
-                    if (int.TryParse(Console.ReadLine(), out staffRole) && roles.Any(roles => roles.RoleId == staffRole))
-                    {
-                        break;
-                    }
-                    Console.WriteLine("Ogiltigt roll ID. Försök igen.");
-                }
+                int departmentId = roleId;
 
                 try
                 {
-                    var newStaff = new Staff
+                    string query = @"INSERT INTO Staff (FirstName, LastName, YearsWorked, Role_ID, Department_ID) 
+                             VALUES (@FirstName, @LastName, @YearsWorked, @Role_ID, @Department_ID)";
+
+                    SqlCommand command = new SqlCommand(query, connection);
+                    //command.Parameters.AddWithValue("@FirstName", firstName);
+                    //command.Parameters.AddWithValue("@LastName", lastName);
+                    //command.Parameters.AddWithValue("@YearsWorked", yearsWorked);
+                    //command.Parameters.AddWithValue("@Role_ID", roleId);
+                    //command.Parameters.AddWithValue("@Department_ID", departmentId);
+
+                    connection.Open();
+                    int rowsAffected = command.ExecuteNonQuery();
+
+                    if (rowsAffected > 0)
                     {
-                        FirstName = firstName,
-                        LastName = lastName,
-                        RoleId = staffRole
-                    };
-
-                    // adding the new staff to the databasse and saves
-                    //context.Staff.Add(newStaff);
-                    //context.SaveChanges();
-                    Console.Clear();
-
-                    Console.WriteLine("\n**** Personal tillagd ****");
+                        Console.WriteLine("\n**** Personal tillagd ****");
+                    }
+                    
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"Ett fel inträffade vid tilldelning av personal: {ex.Message}");
+                    Console.WriteLine($"Ett fel inträffade vid tilldelning av personal. ( {ex.Message} )");
                 }
             }
             Console.WriteLine("\nTryck på valfri tangent...");
             Console.ReadKey();
-            Console.Clear();
+            
         }
 
         public void GetStudentGrade()
