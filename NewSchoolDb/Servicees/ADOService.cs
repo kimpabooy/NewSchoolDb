@@ -201,14 +201,12 @@ namespace NewSchoolDb.Servicees
         
         public void GetStudentGrade()
         {
-            Console.Write("Ange elevens ID: ");
+            Console.WriteLine("Ange elevens ID: (Förslagsvis 13, 30 eller 39");
             int studentId = int.Parse(Console.ReadLine());
-            string connectionString = "YourConnectionStringHere";
 
             using (SqlConnection connection = new SqlConnection(_connectionstring))
             {
-                // Use student id 30 or 39.
-                int ChosenStudent = 39;
+                
                 var query = @$"SELECT 
                             CONCAT(s.FirstName, ' ', s.LastName) AS Student,
                             CONCAT(st.FirstName, ' ', st.LastName) AS Lärare,
@@ -219,7 +217,7 @@ namespace NewSchoolDb.Servicees
                             INNER JOIN Student s ON g.Student_ID = s.StudentID
                             INNER JOIN Subject sub ON g.Subject_ID = sub.SubjectID
                             INNER JOIN Staff st ON g.Staff_ID = st.StaffID
-                            WHERE s.StudentID = {ChosenStudent}
+                            WHERE s.StudentID = @studentId
                             ORDER BY g.GradeDate DESC;";
 
                 connection.Open();
@@ -229,7 +227,7 @@ namespace NewSchoolDb.Servicees
 
                 while (reader.Read())
                 {
-                    Console.WriteLine($"Ämne: {reader["Student"]}, Betyg: {reader["Betyg"]}, Lärare: {reader["Lärare"]}, Datum: {reader["Betygsdatum"]}");
+                    Console.WriteLine($"Student: {reader["Student"]}, Ämne: {reader["Ämne"]}, Betyg: {reader["Betyg"]}, Lärare: {reader["Lärare"]}, Datum: {reader["Betygsdatum"]}");
                 }
             }
             Console.ReadKey();
