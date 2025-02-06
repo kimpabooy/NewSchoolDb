@@ -23,16 +23,19 @@ namespace NewSchoolDb
 
                 Console.WriteLine("Välkommen till Administrationsverktyget för NewSchoolDb!\n");
                 Console.WriteLine("Välj altternativ nedan.\n");
-                Console.WriteLine("[1] Hämta antalet anställda per avdelning .");
-                Console.WriteLine("[2] Hämta relevant information om Studenterna");
-                Console.WriteLine("[3] Hämta Aktiva kurser");
-                Console.WriteLine("[4] Hämta Personalöversikt");
-                Console.WriteLine("[5] ");
-                Console.WriteLine("[6] Avsluta");
+
+                Console.WriteLine("[1] Hämta antalet anställda per avdelning.");
+                Console.WriteLine("[2] Hämta relevant information om Studenterna.");
+                Console.WriteLine("[3] Hämta Aktiva kurser.");
+                Console.WriteLine("[4] Hämta Personalöversikt.");
+                Console.WriteLine("[5] Hämta Elever och betyg");
+                Console.WriteLine("[6] ");
                 Console.WriteLine("[7] ");
                 Console.WriteLine("[8] ");
+                Console.WriteLine("[9] ");
+                Console.WriteLine("[0] Avsluta");
                 Console.WriteLine();
-                // GetStaff()
+                Console.Write("Val: ");
                 string userInput = Console.ReadLine();
 
                 switch (userInput)
@@ -55,8 +58,21 @@ namespace NewSchoolDb
                         break;
                     case "5":
                         Console.Clear();
+                        adoS.GetStudentGrade();
                         break;
                     case "6":
+                        Console.Clear();
+                        break;
+                    case "7":
+                        Console.Clear();
+                        break;
+                    case "8":
+                        Console.Clear();
+                        break;
+                    case "9":
+                        Console.Clear();
+                        break;
+                    case "0":
                         activeMenu = false;
                         break;
                     default:
