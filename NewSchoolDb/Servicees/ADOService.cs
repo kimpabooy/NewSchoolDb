@@ -4,6 +4,7 @@ using NewSchoolDb.Data;
 using NewSchoolDb.Models;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -201,14 +202,12 @@ namespace NewSchoolDb.Servicees
         
         public void GetStudentGrade()
         {
-            Console.Write("Ange elevens ID: ");
+            Console.WriteLine("Ange elevens ID: (Förslagsvis 13, 30 eller 39");
             int studentId = int.Parse(Console.ReadLine());
-            string connectionString = "YourConnectionStringHere";
 
             using (SqlConnection connection = new SqlConnection(_connectionstring))
             {
-                // Use student id 30 or 39.
-                int ChosenStudent = 39;
+                
                 var query = @$"SELECT 
                             CONCAT(s.FirstName, ' ', s.LastName) AS Student,
                             CONCAT(st.FirstName, ' ', st.LastName) AS Lärare,
@@ -219,7 +218,7 @@ namespace NewSchoolDb.Servicees
                             INNER JOIN Student s ON g.Student_ID = s.StudentID
                             INNER JOIN Subject sub ON g.Subject_ID = sub.SubjectID
                             INNER JOIN Staff st ON g.Staff_ID = st.StaffID
-                            WHERE s.StudentID = {ChosenStudent}
+                            WHERE s.StudentID = @studentId
                             ORDER BY g.GradeDate DESC;";
 
                 connection.Open();
@@ -229,7 +228,7 @@ namespace NewSchoolDb.Servicees
 
                 while (reader.Read())
                 {
-                    Console.WriteLine($"Ämne: {reader["Student"]}, Betyg: {reader["Betyg"]}, Lärare: {reader["Lärare"]}, Datum: {reader["Betygsdatum"]}");
+                    Console.WriteLine($"Student: {reader["Student"]}, Ämne: {reader["Ämne"]}, Betyg: {reader["Betyg"]}, Lärare: {reader["Lärare"]}, Datum: {reader["Betygsdatum"]}");
                 }
             }
             Console.ReadKey();
@@ -237,18 +236,168 @@ namespace NewSchoolDb.Servicees
 
         public void GetSalary()
         {
-            //baka in vad meddellönen är för de olika avdelningarna
+            string query = @"
+                   SELECT 
+                       d.DepartmentName AS Avdelning, 
+                       SUM(d.Salary) AS Månadskostnad,
+                       AVG(d.Salary) AS Medellön
+                   FROM Department d
+                   JOIN Staff s ON d.DepartmentID = s.Department_ID
+                   GROUP BY d.DepartmentID, d.DepartmentName;";
+
+            // Combined Sum and Average Salary
+            using (SqlConnection connection = new SqlConnection(_connectionstring))
+            {
+                SqlCommand command = new SqlCommand(query, connection);
+                connection.Open();
+
+                SqlDataReader reader = command.ExecuteReader();
+
+                //Console.WriteLine("Avdelning | Månadskostnad | Medellön");
+                Console.WriteLine("-----Avdelningskostnader-----");
+                Console.WriteLine("---------------------------------------");
+
+                while (reader.Read())
+                {
+                    Console.WriteLine($"Avdelning: {reader["Avdelning"]}\nMånadskostnad: {reader["Månadskostnad"]} SEK\nMedellönen: {Math.Round((decimal)reader["Medellön"], 2)} SEK"); // Limits the decimals to 2
+                    Console.WriteLine("---------------------------------------");
+                }
+            }
+            Console.WriteLine("Tryck på valfri tangent för att fortsätta...");
+            Console.ReadKey();
         }
 
         public void GetStudentById()
         {
+            /*
+             string query = @"CREATE PROCEDURE GetStudentInfo
+                              @StudentID INT
+                          AS
+                          BEGIN
+                              SELECT 
+                                  s.StudentID,
+                                  CONCAT(s.FirstName, ' ', s.LastName) AS Student,
+                                  CONCAT(st.FirstName, ' ', st.LastName) AS Lärare,
+                                  c.ClassName AS Klass,
+                                  gr.Grade AS Betyg,
+                                  sub.SubjectName AS Ämne
+                              FROM 
+                              Student s
+                              LEFT JOIN Class c ON s.Class_ID = c.ClassID -- Klassnamn för student
+                              LEFT JOIN Grade gr ON s.StudentID = gr.Student_ID -- Betyg för studenten
+                              LEFT JOIN Subject sub ON gr.Subject_ID = sub.SubjectID -- Namn på ämnet för varje betyg.
+                              LEFT JOIN Staff st ON gr.Staff_ID = st.StaffID -- Läraren som gav betyget
+                              WHERE s.StudentID = @StudentID;
+                          END;";
+             */
 
+            using (SqlConnection connection = new SqlConnection(_connectionstring))
+            {
+                connection.Open();
+
+                using (SqlCommand command = new SqlCommand("GetStudentInfo", connection))
+                {
+                    Console.WriteLine("----Studentinformation----\n");
+                    Console.WriteLine("Välj önskat Student ID: (Förslagsvis 13, 30 eller 39\"");
+                    Console.Write("Val: ");
+                    int studentId = Convert.ToInt32(Console.ReadLine());
+
+
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@StudentID", studentId);
+
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            Console.WriteLine($"Student: {reader["Student"]}");
+                            Console.WriteLine($"Klass: {reader["Klass"]}");
+                            Console.WriteLine($"Lärare: {reader["Lärare"]}");
+                            Console.WriteLine($"Ämne: {reader["Ämne"]}");
+                            Console.WriteLine($"Betyg: {reader["Betyg"]}");
+                            Console.WriteLine();
+                        }
+                    }
+                }
+            }
+            Console.ReadKey();
         }
 
-        public void Test()
+        public void GustavsMetod()
         {
 
+            // Only run once 🙂 
+            // Creates "StudentGrade" objects/rows to use in database
+            // Uses DB Tables: 
+            // "Students" (A Student)
+            // "Course" t.ex. (A specific course with connection to class and subject - for example "7A ENGLISH".
 
+            // Gets all courses, then (via connection to Class table) students, and creates a random grade (between 1 and 4) for each course, for each student, then saves it.
+            // There are FK connections between teacher/course, studentgrade/gradescale, studentgrade/student etc. etc. - these need to be in place first. 
+
+
+            //    var r = new Random();
+            //    using (var context = new Labb2Context())
+            //    {
+            //        var coursesToGrade = context.Courses
+            //            .Include(cl => cl.CurrentClass)
+            //            .ThenInclude(st => st.Students)
+            //            .ToList();
+
+
+            //        foreach (Course c in coursesToGrade)
+            //        {
+            //            var grades = new List<StudentGrade>();
+            //            foreach (Student s in c.CurrentClass.Students)
+            //            {
+            //                var newGrade = new StudentGrade()
+            //                {
+            //                    SetDate = DateOnly.FromDateTime(DateTime.Now),
+            //                    StaffId = c.TeacherId,
+            //                    StudentId = s.Id,
+            //                    GradeScaleId = r.Next(1, 5), // change min/max number to your "grade id:s"
+            //                    CourseId = c.Id
+            //                };
+            //                grades.Add(newGrade);
+            //            }
+            //            context.AddRange(grades);
+            //        }
+
+            //        context.SaveChanges();
+
+            //    }
         }
+
+
+        public void AddGradeToStudent()
+        {
+            Random random = new Random();
+            using (var connection = new SqlConnection(_connectionstring))
+            {
+                connection.Open();
+
+                
+                string query = @"INSERT INTO Grade (GradeID, Grade, GradeDate, Student_ID, Subject_ID, Staff_ID) VALUES
+                (@GradeID, @Grade, @GradeDate, @Student_ID, @Subject_ID, @Staff_ID)";
+
+                var command = new SqlCommand(query, connection);
+
+                command.Parameters.AddWithValue("@GradeID", );
+                command.Parameters.AddWithValue("@Grade", random.Next(1, 5)); // A-F???
+                command.Parameters.AddWithValue("@GradeDate", DateTime.Now.Date);
+                command.Parameters.AddWithValue("@Student_ID", ); 
+                command.Parameters.AddWithValue("@Subject_ID", ); 
+                command.Parameters.AddWithValue("@Staff_ID", );
+
+                //command.ExecuteNonQuery();
+                
+                
+            }
+        }
+
+
+
+
     }
 }
+

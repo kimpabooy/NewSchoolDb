@@ -1,5 +1,4 @@
-﻿//using NewSchoolDb.EFService;
-using NewSchoolDb.Servicees;
+﻿using NewSchoolDb.Servicees;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,10 +28,10 @@ namespace NewSchoolDb
                 Console.WriteLine("[3] Hämta Aktiva kurser.");
                 Console.WriteLine("[4] Hämta Personalöversikt.");
                 Console.WriteLine("[5] Hämta Elever och betyg");
-                Console.WriteLine("[6] ");
-                Console.WriteLine("[7] ");
-                Console.WriteLine("[8] ");
-                Console.WriteLine("[9] ");
+                Console.WriteLine("[6] Hämta kostnad/mån per avdelning");
+                Console.WriteLine("[7] Hämta Student genom ID");
+                Console.WriteLine("[8] Sätt betyg på en elev");
+                //Console.WriteLine("[9] ");
                 Console.WriteLine("[0] Avsluta");
                 Console.WriteLine();
                 Console.Write("Val: ");
@@ -62,12 +61,15 @@ namespace NewSchoolDb
                         break;
                     case "6":
                         Console.Clear();
+                        adoS.GetSalary();
                         break;
                     case "7":
                         Console.Clear();
+                        adoS.GetStudentById();
                         break;
                     case "8":
                         Console.Clear();
+                        adoS.AddGradeToStudent();
                         break;
                     case "9":
                         Console.Clear();
