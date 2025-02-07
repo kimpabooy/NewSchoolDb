@@ -1,13 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
-using NewSchoolDb.Data;
-using NewSchoolDb.Models;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace NewSchoolDb.Servicees
 {
@@ -22,7 +15,7 @@ namespace NewSchoolDb.Servicees
                 connection.Open();
 
                 string query = @"SELECT 
-                                CONCAT(FirstName, ' ', LastName) AS [Name],
+                                CONCAT(s.FirstName, ' ', s.LastName) AS [Name],
                                 r.RoleName, 
                                 DATEDIFF(YEAR, s.YearsWorked, GETDATE()) AS YearsWorked
                                 FROM Staff s
@@ -199,7 +192,6 @@ namespace NewSchoolDb.Servicees
 
         }
 
-        
         public void GetStudentGrade()
         {
             Console.WriteLine("Ange elevens ID: (Förslagsvis 13, 30 eller 39");
@@ -323,81 +315,114 @@ namespace NewSchoolDb.Servicees
             Console.ReadKey();
         }
 
-        public void GustavsMetod()
-        {
-
-            // Only run once 🙂 
-            // Creates "StudentGrade" objects/rows to use in database
-            // Uses DB Tables: 
-            // "Students" (A Student)
-            // "Course" t.ex. (A specific course with connection to class and subject - for example "7A ENGLISH".
-
-            // Gets all courses, then (via connection to Class table) students, and creates a random grade (between 1 and 4) for each course, for each student, then saves it.
-            // There are FK connections between teacher/course, studentgrade/gradescale, studentgrade/student etc. etc. - these need to be in place first. 
-
-
-            //    var r = new Random();
-            //    using (var context = new Labb2Context())
-            //    {
-            //        var coursesToGrade = context.Courses
-            //            .Include(cl => cl.CurrentClass)
-            //            .ThenInclude(st => st.Students)
-            //            .ToList();
-
-
-            //        foreach (Course c in coursesToGrade)
-            //        {
-            //            var grades = new List<StudentGrade>();
-            //            foreach (Student s in c.CurrentClass.Students)
-            //            {
-            //                var newGrade = new StudentGrade()
-            //                {
-            //                    SetDate = DateOnly.FromDateTime(DateTime.Now),
-            //                    StaffId = c.TeacherId,
-            //                    StudentId = s.Id,
-            //                    GradeScaleId = r.Next(1, 5), // change min/max number to your "grade id:s"
-            //                    CourseId = c.Id
-            //                };
-            //                grades.Add(newGrade);
-            //            }
-            //            context.AddRange(grades);
-            //        }
-
-            //        context.SaveChanges();
-
-            //    }
-        }
-
-
         public void AddGradeToStudent()
         {
             Random random = new Random();
             using (var connection = new SqlConnection(_connectionstring))
             {
-                connection.Open();
 
+                string queryGetStudentInfo = @"SELECT 
+                                                s.StudentID AS Student_ID,
+                                                CONCAT(s.FirstName, ' ', s.LastName) AS [Name]
+                                             FROM Student s";
                 
-                string query = @"INSERT INTO Grade (GradeID, Grade, GradeDate, Student_ID, Subject_ID, Staff_ID) VALUES
-                (@GradeID, @Grade, @GradeDate, @Student_ID, @Subject_ID, @Staff_ID)";
+                string queryGetSubject = @"SELECT 
+                                            s.SubjectID AS ID,
+                                            s.SubjectName AS Ämne
+                                        FROM Subject s";
 
-                var command = new SqlCommand(query, connection);
 
-                command.Parameters.AddWithValue("@GradeID", );
-                command.Parameters.AddWithValue("@Grade", random.Next(1, 5)); // A-F???
-                command.Parameters.AddWithValue("@GradeDate", DateTime.Now.Date);
-                command.Parameters.AddWithValue("@Student_ID", ); 
-                command.Parameters.AddWithValue("@Subject_ID", ); 
-                command.Parameters.AddWithValue("@Staff_ID", );
+                string queryGetStaff = @"SELECT 
+                                            s.SubjectID AS ID,
+                                            s.SubjectName AS Ämne
+                                        FROM Subject s";
+
+                //string queryGetGrade = @"";
+
+                string queryAddStudent = @"INSERT INTO Grade (GradeID, Grade, GradeDate, Student_ID, Subject_ID, Staff_ID) VALUES
+                                         (@GradeID, @Grade, @GradeDate, @Student_ID, @Subject_ID, @Staff_ID)";
+
+
+                // Displays Students
+                connection.Open();
+                SqlCommand command = new SqlCommand(queryGetStudentInfo, connection);
+                SqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
+                {
+                    Console.Write($"ID: {reader["Student_ID"]} Student: {reader["Name"]}\n");
+                }
+                Console.WriteLine("\nVälj en Student ( ID )");
+                Console.Write("Val: ");
+                int studentId = Convert.ToInt32(Console.ReadLine());
+                connection.Close();
+                Console.Clear();
+
+                // Displays Subjects
+                connection.Open();
+                SqlCommand command_studentInfo = new SqlCommand(queryGetSubject, connection);
+                SqlDataReader readerSubject = command_studentInfo.ExecuteReader();
+                while (readerSubject.Read())
+                {
+                    Console.Write($"ID: {readerSubject["ID"]} Ämne: {readerSubject["Ämne"]}\n");
+                }
+                Console.WriteLine("\nVälj ett Ämne ( ID )");
+                Console.Write("Val: ");
+                int subjectId = Convert.ToInt32(Console.ReadLine());
+                connection.Close();
+                Console.Clear();
+
+                // Displays Staff
+                connection.Open();
+                SqlCommand commandStaffInfo = new SqlCommand(queryGetStaff, connection);
+                SqlDataReader readerStaff = commandStaffInfo.ExecuteReader();
+                while (readerStaff.Read())
+                {
+                    Console.Write($"ID: {readerStaff["ID"]} Namn: {readerStaff["Namn"]}\n");
+                }
+                Console.WriteLine("\nVälj ett Ämne ( ID )");
+                Console.Write("Val: ");
+                int staffId = Convert.ToInt32(Console.ReadLine());
+                connection.Close();
+                Console.Clear();
+
+                // Displays Grades
+                connection.Open();
+                SqlCommand commandGradeInfo = new SqlCommand(queryGetGrade, connection);
+                SqlDataReader readerGrade = commandGradeInfo.ExecuteReader();
+                while (readerGrade.Read())
+                {
+                    Console.Write($"ID: {readerGrade["ID"]} Namn: {readerGrade["Namn"]}\n");
+                }
+                Console.WriteLine("\nVälj ett Ämne ( ID )");
+                Console.Write("Val: ");
+                int grade = Convert.ToInt32(Console.ReadLine());
+                connection.Close();
+                Console.Clear();
+
+
+                Console.WriteLine($"StudentID: {studentId}");
+                Console.WriteLine($"SubjectID: {subjectId}");
+                Console.WriteLine($"StaffID: {staffId}");
+                Console.WriteLine($"Grade: {grade}");
+                Console.WriteLine($"SubjectID: {DateTime.Now}");
+
+                Console.ReadKey();
+
+
+                //var command = new SqlCommand(queryAddStudent, connection);
+
+                //command.Parameters.AddWithValue("@Grade", grade);
+                command.Parameters.AddWithValue("@GradeDate", DateTime.Now);
+                command.Parameters.AddWithValue("@Student_ID", studentId);
+                command.Parameters.AddWithValue("@Subject_ID", subjectId);
+                command.Parameters.AddWithValue("@Staff_ID", staffId);
 
                 //command.ExecuteNonQuery();
-                
-                
+
+
             }
+            Console.ReadKey();
         }
-
-
-
-
     }
 }
 
