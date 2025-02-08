@@ -1,13 +1,8 @@
 ﻿using Microsoft.Data.SqlClient;
-using Microsoft.EntityFrameworkCore;
-using NewSchoolDb.Data;
 using NewSchoolDb.Models;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection.PortableExecutable;
+
 
 namespace NewSchoolDb.Servicees
 {
@@ -22,7 +17,7 @@ namespace NewSchoolDb.Servicees
                 connection.Open();
 
                 string query = @"SELECT 
-                                CONCAT(FirstName, ' ', LastName) AS [Name],
+                                CONCAT(s.FirstName, ' ', s.LastName) AS [Name],
                                 r.RoleName, 
                                 DATEDIFF(YEAR, s.YearsWorked, GETDATE()) AS YearsWorked
                                 FROM Staff s
@@ -30,29 +25,22 @@ namespace NewSchoolDb.Servicees
 
                 SqlCommand command = new SqlCommand(query, connection);
 
-                try
+                
+                using (SqlDataReader reader = command.ExecuteReader())
                 {
-                    using (SqlDataReader reader = command.ExecuteReader())
-                    {
-                        //Console.WriteLine("   Namn    Roll      År på skolan");
-                        Console.WriteLine("--------------------------------");
+                    Console.WriteLine("--------------Personalöversikt--------------");
 
-                        while (reader.Read())
-                        {
-                            Console.WriteLine($"Namn: {reader["Name"]}\nRoll: {reader["RoleName"]}\nÅr Anställd: {reader["YearsWorked"]}\n");
-                        }
+                    while (reader.Read())
+                    {
+                        Console.WriteLine($"Namn: {reader["Name"]}\nRoll: {reader["RoleName"]}\nÅr Anställd på skolan: {reader["YearsWorked"]}\n");
                     }
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
                 }
                 
                 bool keepGoing = true;
-
                 while (keepGoing)
                 {
-                    Console.WriteLine("Vill du lägga till en ny anställd? (Ja/Nej)");
+                    Console.WriteLine("\nVill du lägga till en ny anställd? (Ja/Nej)");
+                    Console.Write("Val: ");
                     string userChoice = Console.ReadLine().ToLower();
                     
                     if (userChoice == "nej")
@@ -62,6 +50,10 @@ namespace NewSchoolDb.Servicees
                     else if (userChoice == "ja")
                     {
                         AddStaff();
+                    }
+                    else
+                    {
+                        Console.WriteLine("Fel inmatning, prova Ja / Nej\n");
                     }
                 }
             }
@@ -166,7 +158,6 @@ namespace NewSchoolDb.Servicees
 
                     SqlCommand command = new SqlCommand(query, connection);
 
-                    //int rowsAffected = 0; // DEBUGG LÄGE
 
                     // Adding the parameters, SQL commands
                     command.Parameters.AddWithValue("@FirstName", firstName);
@@ -176,6 +167,7 @@ namespace NewSchoolDb.Servicees
                     command.Parameters.AddWithValue("@Department_ID", departmentId);
 
                     //Executing the commands
+                    //int rowsAffected = 0; // DEBUGG MODE
                     int rowsAffected = command.ExecuteNonQuery();
 
                     // Checks if any rows are affected
@@ -199,15 +191,52 @@ namespace NewSchoolDb.Servicees
 
         }
 
-        
         public void GetStudentGrade()
         {
-            Console.WriteLine("Ange elevens ID: (Förslagsvis 13, 30 eller 39");
-            int studentId = int.Parse(Console.ReadLine());
 
             using (SqlConnection connection = new SqlConnection(_connectionstring))
             {
-                
+                connection.Open();
+
+                string queryGetStudent = @"SELECT
+                                            s.StudentID AS ID,
+                                            CONCAT(s.FirstName, ' ', s.LastName) AS Student
+                                           FROM Student s";
+
+                Console.WriteLine("--------------Studentöversikt--------------");
+                SqlCommand commandGetStudent = new SqlCommand(queryGetStudent, connection);
+
+                SqlDataReader readerGetStudent = commandGetStudent.ExecuteReader();
+
+                List<int> validStudentID = new List<int>();
+                while (readerGetStudent.Read())
+                {
+                    int id = (int)readerGetStudent["ID"];
+                    validStudentID.Add(id);
+                    Console.WriteLine($"ID: {readerGetStudent["ID"]} {readerGetStudent["Student"]}");
+                }
+                readerGetStudent.Close();
+
+                int studentId;
+                do
+                {
+                    Console.WriteLine("\nAnge Student ID");
+                    Console.Write("Val: ");
+
+                    while (!int.TryParse(Console.ReadLine(), out studentId))
+                    {
+                        Console.WriteLine("Felaktig input! Ange en giltig siffra: ");
+                        Console.Write("Val: ");
+                    }
+
+                    if (!validStudentID.Contains(studentId))
+                    {
+                        Console.WriteLine("Fel! ID finns inte i listan. Försök igen.");
+                    }
+
+                } while (!validStudentID.Contains(studentId));
+                Console.Clear();
+
                 var query = @$"SELECT 
                             CONCAT(s.FirstName, ' ', s.LastName) AS Student,
                             CONCAT(st.FirstName, ' ', st.LastName) AS Lärare,
@@ -221,21 +250,22 @@ namespace NewSchoolDb.Servicees
                             WHERE s.StudentID = @studentId
                             ORDER BY g.GradeDate DESC;";
 
-                connection.Open();
                 SqlCommand command = new SqlCommand(query, connection);
                 command.Parameters.AddWithValue("@studentId", studentId);
                 SqlDataReader reader = command.ExecuteReader();
 
                 while (reader.Read())
                 {
-                    Console.WriteLine($"Student: {reader["Student"]}, Ämne: {reader["Ämne"]}, Betyg: {reader["Betyg"]}, Lärare: {reader["Lärare"]}, Datum: {reader["Betygsdatum"]}");
+                    Console.WriteLine($"Student: {reader["Student"]}, Ämne: {reader["Ämne"]}, Betyg: {reader["Betyg"]}, Lärare: {reader["Lärare"]}, Betygsdatum: {reader["Betygsdatum"]}");
                 }
             }
+            Console.WriteLine("\nTryck på valfri tangent för att återgå till menyn...");
             Console.ReadKey();
         }
 
         public void GetSalary()
         {
+            // Combined Sum and Average Salary
             string query = @"
                    SELECT 
                        d.DepartmentName AS Avdelning, 
@@ -245,7 +275,7 @@ namespace NewSchoolDb.Servicees
                    JOIN Staff s ON d.DepartmentID = s.Department_ID
                    GROUP BY d.DepartmentID, d.DepartmentName;";
 
-            // Combined Sum and Average Salary
+            
             using (SqlConnection connection = new SqlConnection(_connectionstring))
             {
                 SqlCommand command = new SqlCommand(query, connection);
@@ -253,7 +283,6 @@ namespace NewSchoolDb.Servicees
 
                 SqlDataReader reader = command.ExecuteReader();
 
-                //Console.WriteLine("Avdelning | Månadskostnad | Medellön");
                 Console.WriteLine("-----Avdelningskostnader-----");
                 Console.WriteLine("---------------------------------------");
 
@@ -270,6 +299,9 @@ namespace NewSchoolDb.Servicees
         public void GetStudentById()
         {
             /*
+             * 
+                                            *** This is how i made my Store Procedure ***
+
              string query = @"CREATE PROCEDURE GetStudentInfo
                               @StudentID INT
                           AS
@@ -283,10 +315,10 @@ namespace NewSchoolDb.Servicees
                                   sub.SubjectName AS Ämne
                               FROM 
                               Student s
-                              LEFT JOIN Class c ON s.Class_ID = c.ClassID -- Klassnamn för student
-                              LEFT JOIN Grade gr ON s.StudentID = gr.Student_ID -- Betyg för studenten
-                              LEFT JOIN Subject sub ON gr.Subject_ID = sub.SubjectID -- Namn på ämnet för varje betyg.
-                              LEFT JOIN Staff st ON gr.Staff_ID = st.StaffID -- Läraren som gav betyget
+                              LEFT JOIN Class c ON s.Class_ID = c.ClassID -- Class Name for student.
+                              LEFT JOIN Grade gr ON s.StudentID = gr.Student_ID -- Grade for student.
+                              LEFT JOIN Subject sub ON gr.Subject_ID = sub.SubjectID -- Name for each subject in grades.
+                              LEFT JOIN Staff st ON gr.Staff_ID = st.StaffID -- The teacher who set the grade.
                               WHERE s.StudentID = @StudentID;
                           END;";
              */
@@ -295,14 +327,49 @@ namespace NewSchoolDb.Servicees
             {
                 connection.Open();
 
+                Console.WriteLine("----Studentinformation----\n");
+
+                string queryGetStudent = @"SELECT
+                                            s.StudentID AS ID,
+                                            CONCAT(s.FirstName, ' ', s.LastName) AS Student
+                                           FROM Student s";
+
+                SqlCommand commandGetStudent = new SqlCommand(queryGetStudent, connection);
+                SqlDataReader readerGetStudent = commandGetStudent.ExecuteReader();
+                
+                List<int> validStudentID = new List<int>();
+                while (readerGetStudent.Read())
+                {
+                    int id = (int)readerGetStudent["ID"];
+                    validStudentID.Add(id);
+                    Console.WriteLine($"ID: {readerGetStudent["ID"]} {readerGetStudent["Student"]}");
+                }
+
+                // Checks if student ID excists
+                int studentId;
+                do
+                {
+                    Console.WriteLine("\nAnge Student ID");
+                    Console.Write("Val: ");
+
+                    while (!int.TryParse(Console.ReadLine(), out studentId))
+                    {
+                        Console.WriteLine("Felaktig input! Ange en giltig siffra: ");
+                        Console.Write("Val: ");
+                    }
+
+                    if (!validStudentID.Contains(studentId))
+                    {
+                        Console.WriteLine("Fel! ID finns inte i listan. Försök igen.");
+                    }
+
+                } while (!validStudentID.Contains(studentId));
+                Console.Clear();
+
+                readerGetStudent.Close();
+
                 using (SqlCommand command = new SqlCommand("GetStudentInfo", connection))
                 {
-                    Console.WriteLine("----Studentinformation----\n");
-                    Console.WriteLine("Välj önskat Student ID: (Förslagsvis 13, 30 eller 39\"");
-                    Console.Write("Val: ");
-                    int studentId = Convert.ToInt32(Console.ReadLine());
-
-
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@StudentID", studentId);
 
@@ -323,81 +390,200 @@ namespace NewSchoolDb.Servicees
             Console.ReadKey();
         }
 
-        public void GustavsMetod()
-        {
-
-            // Only run once 🙂 
-            // Creates "StudentGrade" objects/rows to use in database
-            // Uses DB Tables: 
-            // "Students" (A Student)
-            // "Course" t.ex. (A specific course with connection to class and subject - for example "7A ENGLISH".
-
-            // Gets all courses, then (via connection to Class table) students, and creates a random grade (between 1 and 4) for each course, for each student, then saves it.
-            // There are FK connections between teacher/course, studentgrade/gradescale, studentgrade/student etc. etc. - these need to be in place first. 
-
-
-            //    var r = new Random();
-            //    using (var context = new Labb2Context())
-            //    {
-            //        var coursesToGrade = context.Courses
-            //            .Include(cl => cl.CurrentClass)
-            //            .ThenInclude(st => st.Students)
-            //            .ToList();
-
-
-            //        foreach (Course c in coursesToGrade)
-            //        {
-            //            var grades = new List<StudentGrade>();
-            //            foreach (Student s in c.CurrentClass.Students)
-            //            {
-            //                var newGrade = new StudentGrade()
-            //                {
-            //                    SetDate = DateOnly.FromDateTime(DateTime.Now),
-            //                    StaffId = c.TeacherId,
-            //                    StudentId = s.Id,
-            //                    GradeScaleId = r.Next(1, 5), // change min/max number to your "grade id:s"
-            //                    CourseId = c.Id
-            //                };
-            //                grades.Add(newGrade);
-            //            }
-            //            context.AddRange(grades);
-            //        }
-
-            //        context.SaveChanges();
-
-            //    }
-        }
-
-
         public void AddGradeToStudent()
         {
-            Random random = new Random();
+            string[] validGrades = { "A", "B", "C", "D", "E", "F" };
+
             using (var connection = new SqlConnection(_connectionstring))
             {
                 connection.Open();
 
-                
-                string query = @"INSERT INTO Grade (GradeID, Grade, GradeDate, Student_ID, Subject_ID, Staff_ID) VALUES
-                (@GradeID, @Grade, @GradeDate, @Student_ID, @Subject_ID, @Staff_ID)";
+                // Get Student information
+                string queryGetStudentInfo = @"SELECT s.StudentID AS ID,
+                                                CONCAT(s.FirstName, ' ', s.LastName) AS Student
+                                              FROM Student s";
 
-                var command = new SqlCommand(query, connection);
+                SqlCommand command = new SqlCommand(queryGetStudentInfo, connection);
+                SqlDataReader reader = command.ExecuteReader();
 
-                command.Parameters.AddWithValue("@GradeID", );
-                command.Parameters.AddWithValue("@Grade", random.Next(1, 5)); // A-F???
-                command.Parameters.AddWithValue("@GradeDate", DateTime.Now.Date);
-                command.Parameters.AddWithValue("@Student_ID", ); 
-                command.Parameters.AddWithValue("@Subject_ID", ); 
-                command.Parameters.AddWithValue("@Staff_ID", );
 
-                //command.ExecuteNonQuery();
+                List<int> validStudentID = new List<int>();
+                while (reader.Read())
+                {
+                    int id = (int)reader["ID"];
+                    validStudentID.Add(id);
+                    Console.WriteLine($"ID: {reader["ID"]} {reader["Student"]}");
+                }
+                reader.Close();
+
+                int studentId;
+                do
+                {
+                    Console.WriteLine("\nAnge Student ID");
+                    Console.Write("Val: ");
+
+                    while (!int.TryParse(Console.ReadLine(), out studentId))
+                    {
+                        Console.WriteLine("Felaktig input! Ange en giltig siffra: ");
+                        Console.Write("Val: ");
+                    }
+
+                    if (!validStudentID.Contains(studentId))
+                    {
+                        Console.WriteLine("Fel! ID finns inte i listan. Försök igen.");
+                    }
+
+                } while (!validStudentID.Contains(studentId));
+                Console.Clear();
+
+
+                // Get Subjects
+                string queryGetSubject = @"SELECT s.SubjectID AS ID,
+                                             s.SubjectName AS Ämne
+                                           FROM Subject s";
                 
+                command.CommandText = queryGetSubject;
+                reader = command.ExecuteReader();
+
+                List<int> validSubjectIds = new List<int>(); // Saves subjectID to a list.
+
+                // Checks if subject excists with the input from user.
+                int subjectId;
+                while (reader.Read())
+                {
+                    int id = (int)reader["ID"];
+                    validSubjectIds.Add(id);
+
+                    Console.WriteLine($"ID: {reader["ID"]} Ämne: {reader["Ämne"]}");
+                }
+                reader.Close();
+
+                do
+                {
+                    Console.Write("\nVälj ett Ämne (ID): ");
+                    while (!int.TryParse(Console.ReadLine(), out subjectId))
+                    {
+                        Console.Write("Felaktig input! Ange en giltig siffra: ");
+                    }
+
+                    if (!validSubjectIds.Contains(subjectId))
+                    {
+                        Console.WriteLine("Fel! ID finns inte i listan. Försök igen.");
+                    }
+                } while (!validSubjectIds.Contains(subjectId));
+                Console.Clear();
+
+
+                // Get Teatchers
+                string queryGetStaff = @"SELECT s.StaffID AS ID,
+                                            CONCAT(s.FirstName, ' ', s.LastName) AS Lärare
+                                         FROM Staff s
+                                         WHERE s.Department_ID = 1;";
+                command.CommandText = queryGetStaff;
+                reader = command.ExecuteReader();
+
+                List<int> validTeacherID = new List<int>();
+                while (reader.Read())
+                {
+                    int id = (int)reader["ID"];
+                    validTeacherID.Add(id);
+                    Console.WriteLine($"ID: {reader["ID"]} {reader["Lärare"]}");
+                }
+                reader.Close();
+
+                int staffId;
+                do
+                {
+                    Console.WriteLine("\nAnge Student ID");
+                    Console.Write("Val: ");
+
+                    while (!int.TryParse(Console.ReadLine(), out staffId))
+                    {
+                        Console.WriteLine("Felaktig input! Ange en giltig siffra: ");
+                        Console.Write("Val: ");
+                    }
+
+                    if (!validTeacherID.Contains(staffId))
+                    {
+                        Console.WriteLine("Fel! ID finns inte i listan. Försök igen.");
+                    }
+
+                } while (!validTeacherID.Contains(staffId));
+                Console.Clear();
+
                 
+                // Get Grades
+                Console.WriteLine("Tillgängliga betyg:\n A\n B\n C\n D\n E\n F\n");
+                Console.Write("\nVälj ett betyg: ");
+                string grade = Console.ReadLine().ToUpper();
+
+                while (!validGrades.Contains(grade))
+                {
+                    Console.Write("Felaktigt betyg! Välj A-F: ");
+                    grade = Console.ReadLine().ToUpper();
+                }
+                Console.Clear();
+
+                // Checks if user wants to continue with the provided inputs
+                bool keepGoing = true;
+                while (keepGoing)
+                {
+                    Console.WriteLine("**** Sumering ****\n");
+
+                    Console.WriteLine($"StudentID: {studentId}");
+                    Console.WriteLine($"SubjectID: {subjectId}");
+                    Console.WriteLine($"StaffID: {staffId}");
+                    Console.WriteLine($"Grade: {grade}");
+                    Console.WriteLine($"Datum: {DateTime.Now}");
+
+                    Console.WriteLine("Är du säker på att du vill lägga till följande information (Ja / Nej)");
+                    string userChoice = Console.ReadLine().ToUpper();
+
+                    if (userChoice == "JA")
+                    {
+                        // Transaktion query
+                        string queryTransaction = @"
+                                                  BEGIN TRANSACTION;
+                                                  BEGIN TRY
+                                                      INSERT INTO Grade (Grade, GradeDate, Student_ID, Subject_ID, Staff_ID)
+                                                      VALUES (@Grade, @GradeDate, @Student_ID, @Subject_ID, @Staff_ID);
+                                                      COMMIT TRANSACTION;
+                                                      PRINT 'Data har satts in framgångsrikt!';
+                                                  END TRY
+                                                  BEGIN CATCH
+                                                      ROLLBACK TRANSACTION;
+                                                      PRINT 'Fel inträffade: ' + ERROR_MESSAGE();
+                                                  END CATCH;";
+
+                        // Adds the grade to the database
+                        using (var commandTransaction = new SqlCommand(queryTransaction, connection))
+                        {
+                            commandTransaction.Parameters.AddWithValue("@Grade", grade);
+                            commandTransaction.Parameters.AddWithValue("@GradeDate", DateTime.Now);
+                            commandTransaction.Parameters.AddWithValue("@Student_ID", studentId);
+                            commandTransaction.Parameters.AddWithValue("@Subject_ID", subjectId);
+                            commandTransaction.Parameters.AddWithValue("@Staff_ID", staffId);
+
+                            commandTransaction.ExecuteNonQuery();
+                        }
+
+                        Console.WriteLine("\nBetyg har lagts till.");
+                        keepGoing = false;
+                    }
+                    else if (userChoice == "NEJ")
+                    {
+                        Console.WriteLine("Inget betyg har lags till");
+                        Console.WriteLine("\n Tryck på valfri tangent för att återgå till menyn");
+                        keepGoing = false;
+                    }
+                    else
+                    {
+                        Console.Clear();
+                        Console.WriteLine("Fel inmatning, testa (Ja / Nej )\n");
+                    }
+                }
             }
+            Console.ReadKey();
         }
-
-
-
-
     }
 }
-

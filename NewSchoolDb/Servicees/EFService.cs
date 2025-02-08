@@ -1,10 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using NewSchoolDb.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NewSchoolDb.Servicees
 {
@@ -43,17 +38,17 @@ namespace NewSchoolDb.Servicees
                     .ToList();
 
                 // Group students by class
-                var groupedStudents = students.GroupBy(s => s.Class.ClassName);
+                var groupedStudents = students.GroupBy(s => s.Class.ClassName); // Groups students by Class
 
                 foreach (var classGroup in groupedStudents)
                 {
-                    Console.WriteLine($"\n---- Klass {classGroup.Key} ----");  // Displys classname
+                    Console.WriteLine($"\n---- Klass {classGroup.Key} ----");  // Displys Class Name
 
                     var count = 0;
                     foreach (var student in classGroup)
                     {
                         count++;
-                        Console.WriteLine($"#{count} | {student.FirstName} {student.LastName.PadRight(15)} | {student.SecurityNum}");
+                        Console.WriteLine($"#{count}| StudentID: {student.StudentId} | {student.FirstName.Trim()} {student.LastName.Trim()} | SSN: {student.SecurityNum}");
                     }
                 }
                 Console.ReadKey();
@@ -62,14 +57,14 @@ namespace NewSchoolDb.Servicees
 
         public void GetActiveCourse()
         {
-            var today = DateTime.Now;
+            var today = DateTime.Now.Date;
 
             using (var context = new NewSchoolDbContext())
             {
                 var courses = context.Courses
-                    .Where(c => c.EndDate < today) // Get active courses if EndDate is after todays date.
                     .Include(c => c.CourseName)
                     .Include(c => c.Subject)
+                    .Where(c => c.EndDate > today)
                     .ToList();
 
                 var count = 1;
@@ -81,6 +76,5 @@ namespace NewSchoolDb.Servicees
             }
             Console.ReadKey();
         }
-
     }
 }

@@ -1,12 +1,15 @@
 ﻿using NewSchoolDb.Servicees;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace NewSchoolDb
 {
+    /*
+        while (!int.TryParse(Console.ReadLine(), out studentId))
+                {
+                    Console.WriteLine("Felaktig input! Ange en giltig siffra");
+                    Console.Write("Val: ");
+                }
+     */
+
     public class Menu
     {
         public void UserMenu()
@@ -27,52 +30,43 @@ namespace NewSchoolDb
                 Console.WriteLine("[2] Hämta relevant information om Studenterna.");
                 Console.WriteLine("[3] Hämta Aktiva kurser.");
                 Console.WriteLine("[4] Hämta Personalöversikt.");
-                Console.WriteLine("[5] Hämta Elever och betyg");
+                Console.WriteLine("[5] Hämta Student och betyg");
                 Console.WriteLine("[6] Hämta kostnad/mån per avdelning");
                 Console.WriteLine("[7] Hämta Student genom ID");
                 Console.WriteLine("[8] Sätt betyg på en elev");
-                //Console.WriteLine("[9] ");
                 Console.WriteLine("[0] Avsluta");
                 Console.WriteLine();
+
                 Console.Write("Val: ");
                 string userInput = Console.ReadLine();
-
+                
+                Console.Clear();
+                
                 switch (userInput)
                 {
                     case "1":
-                        Console.Clear();
                         efS.GetTeacherAmount();
                         break;
                     case "2":
-                        Console.Clear();
                         efS.GetStudentInfo();
                         break;
                     case "3":
-                        Console.Clear();
                         efS.GetActiveCourse();
                         break;
                     case "4":
-                        Console.Clear();
                         adoS.GetStaff();
                         break;
                     case "5":
-                        Console.Clear();
                         adoS.GetStudentGrade();
                         break;
                     case "6":
-                        Console.Clear();
                         adoS.GetSalary();
                         break;
                     case "7":
-                        Console.Clear();
                         adoS.GetStudentById();
                         break;
                     case "8":
-                        Console.Clear();
                         adoS.AddGradeToStudent();
-                        break;
-                    case "9":
-                        Console.Clear();
                         break;
                     case "0":
                         activeMenu = false;
