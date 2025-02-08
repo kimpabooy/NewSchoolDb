@@ -2,6 +2,14 @@
 
 namespace NewSchoolDb
 {
+    /*
+        while (!int.TryParse(Console.ReadLine(), out studentId))
+                {
+                    Console.WriteLine("Felaktig input! Ange en giltig siffra");
+                    Console.Write("Val: ");
+                }
+     */
+
     public class Menu
     {
         public void UserMenu()
@@ -22,14 +30,16 @@ namespace NewSchoolDb
                 Console.WriteLine("[2] Hämta relevant information om Studenterna.");
                 Console.WriteLine("[3] Hämta Aktiva kurser.");
                 Console.WriteLine("[4] Hämta Personalöversikt.");
-                Console.WriteLine("[5] Hämta Elever och betyg");
+                Console.WriteLine("[5] Hämta Student och betyg");
                 Console.WriteLine("[6] Hämta kostnad/mån per avdelning");
                 Console.WriteLine("[7] Hämta Student genom ID");
                 Console.WriteLine("[8] Sätt betyg på en elev");
                 Console.WriteLine("[0] Avsluta");
                 Console.WriteLine();
+
                 Console.Write("Val: ");
                 string userInput = Console.ReadLine();
+                
                 Console.Clear();
                 
                 switch (userInput)
@@ -57,8 +67,6 @@ namespace NewSchoolDb
                         break;
                     case "8":
                         adoS.AddGradeToStudent();
-                        break;
-                    case "9":
                         break;
                     case "0":
                         activeMenu = false;
